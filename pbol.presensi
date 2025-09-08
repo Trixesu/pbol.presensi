@@ -1,0 +1,228 @@
+import java.util.*;
+
+public class AbsensiMataKuliah {
+
+    static List<Mahasiswa> daftarMahasiswa = new ArrayList<>();
+    static List<MataKuliah> daftarMataKuliah = new ArrayList<>();
+    static List<Absensi> dataAbsensi = new ArrayList<>();
+    static Scanner scanner = new Scanner(System.in);
+    static int idAbsensiCounter = 1;
+
+    public static void main(String[] args) {
+        initData();
+        menuUtama();
+    }
+
+    static void initData() {
+        daftarMahasiswa.add(new Mahasiswa(1, "Ahmad"));
+        daftarMahasiswa.add(new Mahasiswa(2, "Budi"));
+        daftarMahasiswa.add(new Mahasiswa(3, "Citra"));
+
+        daftarMataKuliah.add(new MataKuliah(1, "Pemrograman Java"));
+        daftarMataKuliah.add(new MataKuliah(2, "Basis Data"));
+        daftarMataKuliah.add(new MataKuliah(3, "Struktur Data"));
+    }
+
+    static void menuUtama() {
+        while (true) {
+            System.out.println("\n=== Sistem Absensi Per Mata Kuliah ===");
+            System.out.println("1. Tambah Absensi");
+            System.out.println("2. Lihat Data Absensi");
+            System.out.println("3. Ubah Absensi");
+            System.out.println("4. Hapus Absensi");
+            System.out.println("5. Keluar");
+            System.out.print("Pilih menu: ");
+            int pilihan = scanner.nextInt();
+            scanner.nextLine(); // Flush newline
+
+            switch (pilihan) {
+                case 1:
+                    tambahAbsensi();
+                    break;
+                case 2:
+                    tampilkanAbsensi();
+                    break;
+                case 3:
+                    ubahAbsensi();
+                    break;
+                case 4:
+                    hapusAbsensi();
+                    break;
+                case 5:
+                    System.out.println("Program selesai. Terima kasih.");
+                    return;
+                default:
+                    System.out.println("Pilihan tidak valid.");
+            }
+        }
+    }
+
+    static void tampilkanMahasiswa() {
+        System.out.println("Daftar Mahasiswa:");
+        for (Mahasiswa m : daftarMahasiswa) {
+            System.out.println(m);
+        }
+    }
+
+    static void tampilkanMataKuliah() {
+        System.out.println("Daftar Mata Kuliah:");
+        for (MataKuliah mk : daftarMataKuliah) {
+            System.out.println(mk);
+        }
+    }
+
+    static Mahasiswa pilihMahasiswa() {
+        tampilkanMahasiswa();
+        System.out.print("Pilih NIM Mahasiswa: ");
+        int nim = scanner.nextInt();
+        scanner.nextLine();
+        for (Mahasiswa m : daftarMahasiswa) {
+            if (m.nim == nim) {
+                return m;
+            }
+        }
+        System.out.println("Mahasiswa tidak ditemukan.");
+        return null;
+    }
+
+    static MataKuliah pilihMataKuliah() {
+        tampilkanMataKuliah();
+        System.out.print("Pilih kode mata kuliah: ");
+        int kode = scanner.nextInt();
+        scanner.nextLine();
+        for (MataKuliah mk : daftarMataKuliah) {
+            if (mk.kodeMk == kode) {
+                return mk;
+            }
+        }
+        System.out.println("Mata kuliah tidak ditemukan.");
+        return null;
+    }
+
+    static String inputStatus() {
+        while (true) {
+            System.out.print("Masukkan status (Hadir/Izin/Sakit/Alpha): ");
+            String status = scanner.nextLine().trim();
+            if (status.equalsIgnoreCase("Hadir")
+                    || status.equalsIgnoreCase("Izin")
+                    || status.equalsIgnoreCase("Sakit")
+                    || status.equalsIgnoreCase("Alpha")) {
+                return status;
+            } else {
+                System.out.println("Status tidak valid. Ulangi input.");
+            }
+        }
+    }
+
+    static void tambahAbsensi() {
+        System.out.println("\n--- Tambah Data Absensi ---");
+        Mahasiswa mhs = pilihMahasiswa();
+        MataKuliah mk = pilihMataKuliah();
+        if (mhs == null || mk == null) {
+            return;
+        }
+
+        String status = inputStatus();
+        Absensi absen = new Absensi(idAbsensiCounter++, mhs, mk, status);
+        dataAbsensi.add(absen);
+        System.out.println("Absensi berhasil ditambahkan.");
+    }
+
+    static void tampilkanAbsensi() {
+        System.out.println("\n--- Data Absensi ---");
+        if (dataAbsensi.isEmpty()) {
+            System.out.println("Belum ada data absensi.");
+        } else {
+            for (Absensi a : dataAbsensi) {
+                System.out.println(a);
+            }
+        }
+    }
+
+    static void ubahAbsensi() {
+        tampilkanAbsensi();
+        System.out.print("Masukkan ID absensi yang ingin diubah: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        for (Absensi a : dataAbsensi) {
+            if (a.id == id) {
+                System.out.println("Data saat ini: " + a);
+                String statusBaru = inputStatus();
+                a.status = statusBaru;
+                System.out.println("Absensi berhasil diubah.");
+                return;
+            }
+        }
+        System.out.println("ID absensi tidak ditemukan.");
+    }
+
+    static void hapusAbsensi() {
+        tampilkanAbsensi();
+        System.out.print("Masukkan ID absensi yang ingin dihapus: ");
+        int id = scanner.nextInt();
+        scanner.nextLine();
+
+        Iterator<Absensi> iterator = dataAbsensi.iterator();
+        while (iterator.hasNext()) {
+            Absensi a = iterator.next();
+            if (a.id == id) {
+                iterator.remove();
+                System.out.println("Absensi berhasil dihapus.");
+                return;
+            }
+        }
+        System.out.println("ID absensi tidak ditemukan.");
+    }
+
+    // Inner classes
+    static class Mahasiswa {
+        int nim;
+        String nama;
+
+        public Mahasiswa(int nim, String nama) {
+            this.nim = nim;
+            this.nama = nama;
+        }
+
+        public String toString() {
+            return nim + ". " + nama;
+        }
+    }
+
+    static class MataKuliah {
+        int kodeMk;
+        String nama;
+
+        public MataKuliah(int kodeMk, String nama) {
+            this.kodeMk = kodeMk;
+            this.nama = nama;
+        }
+
+        public String toString() {
+            return kodeMk + ". " + nama;
+        }
+    }
+
+    static class Absensi {
+        int id; // ID Absensi
+        Mahasiswa mahasiswa;
+        MataKuliah mataKuliah;
+        String status;
+
+        public Absensi(int id, Mahasiswa mahasiswa, MataKuliah mataKuliah, String status) {
+            this.id = id;
+            this.mahasiswa = mahasiswa;
+            this.mataKuliah = mataKuliah;
+            this.status = status;
+        }
+
+        public String toString() {
+            return "ID: " + id
+                    + " | NIM: " + mahasiswa.nim
+                    + " | Mahasiswa: " + mahasiswa.nama
+                    + " | Mata Kuliah: " + mataKuliah.nama
+                    + " | Status: " + status;
+        }
+    }
+}
